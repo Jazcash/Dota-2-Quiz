@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+	<title>DOTA 2 Quiz</title>
+
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+	$(function() {
+	 	var socket = io();
+
+	 	$('#getQuestionBtn').on('click', function(){
+	 		socket.emit('questionRequest');
+	 	});
+
+	 	socket.on('question', function(question){
+			$('#question').text(question.question);
+
+			$('#choices').empty();
+
+			for (var i=0; i<question.choices.length; i++){
+				var choice = $("<input type='radio' id='answer"+i+"' name='choice' value='"+i+"'/><label>"+question.choices[i]+"</label>");
+				$('#choices').append(choice);
+			}
+
+			if (!($("#submitAnswerBtn").length)){
+				var submitAnswer = $("<input type='button' id='submitAnswerBtn' value='Submit Answer' />");
+				$('#questionPanel').append(submitAnswer);
+
+				$('#submitAnswerBtn').on('click', function(){
+					var answer = $("input[type='radio'][name='choice']:checked");
+					console.log(answer.val());
+					//socket.emit('answer', answer);
+				});
+			}
+		});
+	 });
+	</script>
+
+	<style>
+		* { margin: 0; padding: 0; }
+		
+	</style>
+</head>
+<body>
+
+	<div id='questionPanel'>
+		<input type='button' id='getQuestionBtn' value="Get Question" />
+		<div id='question'></div>
+		<form id='choices' action=""></form>
+	</div>
+
+</body>
+</html>
