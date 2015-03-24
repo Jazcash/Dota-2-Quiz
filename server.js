@@ -15,13 +15,19 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 	console.log('a user connected');
 
+	var question;
+
 	socket.on('questionRequest', function(){
-		var question = getRandomQuestion();
+		question = getRandomQuestion();
 		socket.emit('question', {'question': question.question, 'choices': question.choices});
 	});
 
-	socket.on('answer', function(answer){
-		console.log('answer: ' + answer);
+	socket.on('answer', function(answerIndex){
+		if (parseInt(answerIndex) == question.answerIndex){
+			socket.emit('answerStatus', true);
+		} else {
+			socket.emit('answerStatus', false);
+		}
 	});
 
 	socket.on('disconnect', function(){
@@ -65,7 +71,7 @@ function getSimilarValues(value, amount, round){
 		similarValues.push(newValue);
 		if (similarValues.length === amount) break;
 		newValue = value - (i * round);
-		if (newValue > 0) similarValues.push(newValue);
+		if (newValue > -1) similarValues.push(newValue);
 		if (similarValues.length === amount) break;
 	}
 
@@ -82,10 +88,16 @@ function abilityMana(){
 	}
 
 	var randomLevel = Math.floor(Math.random() * ability.AbilityManaCost.length);
-
 	var question = "How much mana does " + hero.Title + "'s " + ability.Title + " (Level " + (parseInt(randomLevel)+1) + ") cost?";
 	var answer = ability.AbilityManaCost[randomLevel];
 	var choices = getSimilarValues(answer, numberOfChoices);
 
-	return {'question': question, 'answer': answer, 'choices': choices};
+	return {'question': question, 'answerIndex': choices.indexOf(answer), 'choices': choices};
+}
+
+function abilityOwner(){
+	var hero = getRandomHero();
+	var ability = getRandomAbility(hero);
+
+	var description = ability.Description;
 }

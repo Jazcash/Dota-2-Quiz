@@ -28,11 +28,18 @@
 				$('#questionPanel').append(submitAnswer);
 
 				$('#submitAnswerBtn').on('click', function(){
-					var answer = $("input[type='radio'][name='choice']:checked");
-					console.log(answer.val());
-					//socket.emit('answer', answer);
+					var answer = $("input[type='radio'][name='choice']:checked").val();
+					if (answer !== undefined){
+						socket.emit('answer', answer);
+					}
 				});
 			}
+		});
+
+		socket.on('answerStatus', function(answerStatus){
+			console.log("boop");
+			if (answerStatus === true) alert("Correct!");
+			else alert("Wrong");
 		});
 	 });
 	</script>
