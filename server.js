@@ -3,7 +3,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 
-var dotadata = JSON.parse(fs.readFileSync(__dirname + '/heroes.json'));
+var dotadata = JSON.parse(fs.readFileSync(__dirname + '/DOTA DATA/heroes.json'));
 var questions = [abilityMana, abilityOwner];
 
 var numberOfChoices = 4;
@@ -115,7 +115,7 @@ function abilityOwner(){
 	if ("Aliases" in hero){
 		if (hero.Aliases){
 			for (var i=0; i<hero.Aliases.length; i++){
-				description = description.replaceAll(hero.Aliases[i].capitalizeFirstLetter(), "{HERO}");
+				description = description.replaceAll(" "+hero.Aliases[i].capitalizeFirstLetter(), "{HERO}");
 			}
 		}
 	}
