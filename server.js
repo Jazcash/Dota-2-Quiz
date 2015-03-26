@@ -3,8 +3,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 
-var dotadata = JSON.parse(fs.readFileSync(__dirname + '/DOTA DATA/heroes.json'));
-var questions = [abilityMana, abilityOwner];
+var dotadata = JSON.parse(fs.readFileSync(__dirname + '/DOTA2Data/Output/heroes.json'));
+var questions = [abilityOwner]; //[abilityMana, abilityOwner];
 
 var numberOfChoices = 4;
 
@@ -110,12 +110,13 @@ function abilityOwner(){
 		var ability = getRandomAbility(hero);
 		var description = ability.Description;
 	} while (description === undefined);
-	description = description.replaceAll(ability.Title, "{ABILITY}");
-	description = description.replaceAll(hero.Title, "{HERO}");
+	description = description.replaceAll(ability.Title+" ", "{ABILITY} ");
+	description = description.replaceAll(hero.Title+" ", "{HERO} ");
 	if ("Aliases" in hero){
 		if (hero.Aliases){
 			for (var i=0; i<hero.Aliases.length; i++){
-				description = description.replaceAll(" "+hero.Aliases[i].capitalizeFirstLetter(), "{HERO}");
+				if (hero.Aliases !== null)
+					description = description.replaceAll(" "+hero.Aliases[i]+" ", " {HERO} ");
 			}
 		}
 	}
