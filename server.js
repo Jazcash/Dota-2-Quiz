@@ -101,7 +101,7 @@ function abilityMana(){
 	var answer = ability.AbilityManaCost[randomLevel];
 	var choices = getSimilarValues(answer, numberOfChoices);
 
-	return {'question': question, 'answerIndex': choices.indexOf(answer), 'choices': choices};
+	return {'type': 'abilityMana', 'question': question, 'answerIndex': choices.indexOf(answer), 'choices': choices};
 }
 
 function abilityOwner(){
@@ -131,5 +131,13 @@ function abilityOwner(){
 
 	choices = shuffle(choices);
 
-	return {'question': question, 'answerIndex': choices.indexOf(answer), 'choices': choices};
+	return {'type': 'abilityOwner', 'question': question, 'answerIndex': choices.indexOf(answer), 'choices': choices};
+}
+
+function whichHero(){
+	var heroes = [];
+	for (var i=0; i<numberOfChoices; i++){
+		heroes.push(getRandomHero());
+	}
+	
 }
