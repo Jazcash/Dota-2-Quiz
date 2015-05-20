@@ -11,10 +11,18 @@
 
 	 	$('#getQuestionBtn').on('click', function(){
 	 		socket.emit('questionRequest');
-	 	});
+	 	}); 
 
 	 	socket.on('question', function(question){
-			$('#question').text(question.question);
+			$('#question p').text(question.question);
+
+			if (question.type === "whichHero"){
+				$('#question img').attr('src', question.questionImage);
+				$('#question img').show();
+			} else {
+				$('#question img').hide();
+				$('#question img').attr('src', '');
+			}
 
 			$('#choices').empty();
 
@@ -53,7 +61,10 @@
 
 	<div id='questionPanel'>
 		<input type='button' id='getQuestionBtn' value="Get Question" />
-		<div id='question'></div>
+		<div id='question'>
+			<p id='questionText'></p>
+			<img id='questionImage'/>
+		</div>
 		<form id='choices' action=""></form>
 	</div>
 

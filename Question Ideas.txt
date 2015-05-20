@@ -1,0 +1,8 @@
+Question Ideas
+
+Ability comparison
+Guess the cooldown
+Range values (which hero has longer)
+Match hero picture to correct name
+Match ability to hero
+Guess primary attribute

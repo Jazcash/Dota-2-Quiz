@@ -1,16 +1,23 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var fs = require('fs');
+var express = require('express'),
+	app = express(),
+	http = require('http').Server(app),
+	io = require('socket.io')(http),
+	fs = require('fs');
 
-var dotadata = JSON.parse(fs.readFileSync(__dirname + '/DOTA2Data/Output/heroes.json'));
-var questions = [abilityOwner]; //[abilityMana, abilityOwner];
+var Outputdir = 'DOTA2Data/Output/';
+
+app.use(express.static(Outputdir));
+
+var dotadata = JSON.parse(fs.readFileSync(Outputdir + 'heroes.json'));
+var questions = [whichHero, abilityMana, abilityOwner];
 
 var numberOfChoices = 4;
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.htm');
 });
+
+app.use(express.static(__dirname + '/DOTA2Data/Output/heroes.json'));
 
 io.on('connection', function(socket){
 	console.log('a user connected');
@@ -19,7 +26,7 @@ io.on('connection', function(socket){
 
 	socket.on('questionRequest', function(){
 		question = getRandomQuestion();
-		socket.emit('question', {'question': question.question, 'choices': question.choices});
+		socket.emit('question', question);
 	});
 
 	socket.on('answer', function(answerIndex){
@@ -39,6 +46,8 @@ http.listen(3000, function(){
 	console.log('listening on *:3000');
 });
 
+/* Getters */
+
 function getRandomQuestion(){
 	return questions[Math.floor(Math.random() * questions.length)]();
 }
@@ -47,9 +56,36 @@ function getRandomHero(){
 	return dotadata[Math.floor((Math.random() * dotadata.length))];
 }
 
-function getRandomAbility(hero){
+function getRandomAbility(){
+	var hero = getRandomHero();
+	return getRandomAbilityOfHero(hero);
+}
+
+function getRandomAbilityOfHero(hero){
 	return hero.Abilities[Math.floor((Math.random() * hero.Abilities.length))];
 }
+
+function getAbilityImage(ability){
+	return 'images/spellicons/' + ability.HeroAbilityUrl +  '.png';
+}
+
+function getHeroImageSmall(herourl){
+	return 'images/heroes/selection/' + herourl + '.png';
+}
+
+function getHeroImageLarge(herourl){
+	return 'images/heroes/full/' + herourl + '.png';
+}
+
+function getHeroMinimapIcon(herourl){
+	return 'images/miniheroes' + herourl + '.png';
+}
+
+function getHeroPortrait(herourl){
+	return 'webms/' + herourl + '.png';
+}
+
+/* Utility */
 
 function getSimilarValues(value, amount, round){
 	var round = round || 10;
@@ -91,9 +127,9 @@ String.prototype.capitalizeFirstLetter = function() {
 
 function abilityMana(){
 	var hero = getRandomHero();
-	var ability = getRandomAbility(hero);
+	var ability = getRandomAbilityOfHero(hero);
 	while(!('AbilityManaCost' in ability)){
-		ability = getRandomAbility(hero);
+		ability = getRandomAbilityOfHero(hero);
 	}
 
 	var randomLevel = Math.floor(Math.random() * ability.AbilityManaCost.length);
@@ -107,7 +143,7 @@ function abilityMana(){
 function abilityOwner(){
 	do {
 		var hero = getRandomHero();
-		var ability = getRandomAbility(hero);
+		var ability = getRandomAbilityOfHero(hero);
 		var description = ability.Description;
 	} while (description === undefined);
 	description = description.replaceAll(ability.Title+" ", "{ABILITY} ");
@@ -126,7 +162,7 @@ function abilityOwner(){
 	var choices = [answer];
 	for (var i=1; i<numberOfChoices; i++){
 		var randhero = getRandomHero();
-		var randability = getRandomAbility(randhero);
+		var randability = getRandomAbilityOfHero(randhero);
 		choices.push(randability.Title);
 	}
 
@@ -136,9 +172,17 @@ function abilityOwner(){
 }
 
 function whichHero(){
-	var heroes = [];
+	var choices = [];
+	var answer, questionImg;
 	for (var i=0; i<numberOfChoices; i++){
-		heroes.push(getRandomHero());
+		var hero = getRandomHero();
+		choices.push(hero.Title);
+		answer = hero.Title;
+		questionImg = getHeroImageLarge(hero.Url);
 	}
+	choices = shuffle(choices);
+
+	var question = "Which hero is this?";
 	
+	return {'type': 'whichHero', 'question': question, 'questionImage': questionImg, 'answerIndex': choices.indexOf(answer), 'choices': choices};
 }
